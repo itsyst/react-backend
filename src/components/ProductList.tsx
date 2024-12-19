@@ -11,8 +11,6 @@ const ProductList = ({ categoryId }: Props) => {
 	const [getProducts, setProducts] = useState<ProductType[]>([]);
 
 	useEffect(() => {
-		console.log('Fetching Products In Category', categoryId);
-
 		if (categoryId === 0) setProducts(products);
 		else {
 			const filteredProducts = products.filter((p) => p.categoryId === categoryId);

@@ -11,7 +11,6 @@ const Category = ({ categoryId, onSelect }: Props) => {
 	const [getCategories, setCategories] = useState<CategoryType[]>([]);
 
 	useEffect(() => {
-		console.log('Fetching Categories ...', categoryId);
 		setCategories(categories);
 	}, [categoryId]);
 

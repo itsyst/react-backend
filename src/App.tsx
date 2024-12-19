@@ -10,8 +10,6 @@ function App() {
 	const onSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		const selectedId = parseInt(event.target.value, 10);
 		setCategoryId(selectedId);
-
-		console.log(selectedId);
 	};
 
 	return (
