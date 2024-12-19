@@ -1,20 +1,28 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { CategoryType } from '../types/CategoryType';
+import { categories } from '../data/category-data';
 
 interface Props {
-	categories: CategoryType[];
+	categoryId: number;
 	onSelect: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
-const Category = ({ categories, onSelect }: Props) => {
+const Category = ({ categoryId, onSelect }: Props) => {
+	const [getCategories, setCategories] = useState<CategoryType[]>([]);
+
+	useEffect(() => {
+		console.log('Fetching Categories ...', categoryId);
+		setCategories(categories);
+	}, [categoryId]);
+
 	return (
 		<div className="input-group mb-3">
 			<div className="input-group-prepend">
 				<label className="input-group-text">Options</label>
 			</div>
 			<select className="custom-select" onChange={onSelect}>
-				<option value=""> All Categories...</option>
-				{categories.map((category) => (
+				<option value="0"> All Categories...</option>
+				{getCategories.map((category) => (
 					<option key={category.id} value={category.id}>
 						{category.name}
 					</option>

@@ -1,14 +1,28 @@
+import { useEffect, useState } from 'react';
 import { ProductType } from '../types/ProductType';
 import Product from './Product';
+import { products } from '../data/product-data';
 
-interface ProductListProps {
-	products: ProductType[];
+interface Props {
+	categoryId: number;
 }
 
-const ProductList = ({ products }: ProductListProps) => {
+const ProductList = ({ categoryId }: Props) => {
+	const [getProducts, setProducts] = useState<ProductType[]>([]);
+
+	useEffect(() => {
+		console.log('Fetching Products In Category', categoryId);
+
+		if (categoryId === 0) setProducts(products);
+		else {
+			const filteredProducts = products.filter((p) => p.categoryId === categoryId);
+			setProducts(filteredProducts);
+		}
+	}, [categoryId]);
+
 	return (
 		<ul className="list-unstyled">
-			{products.map((product) => (
+			{getProducts.map((product) => (
 				<Product key={product.id} product={product} />
 			))}
 		</ul>
