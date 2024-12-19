@@ -6,17 +6,13 @@ axios.defaults.baseURL = import.meta.env.VITE_REACT_APP_API_URL;
 
 // Axios response interceptor to handle errors globally
 axios.interceptors.response.use(
-    (response) => response, // Pass successful responses
-    (error: AxiosError) => {
-        const isExpectedError =
-            error.response &&
-            error.response.status >= 400 &&
-            error.response.status < 500;
+    (response) => response,
+    (error) => {
+        if (axios.isCancel(error)) return Promise.reject(error);
 
-        if (!isExpectedError) {
-            console.error('An unexpected error occurred:', error);
-            toast.error('An unexpected error occurred.')
-        }
+        const axiosError = error as AxiosError;
+        const isExpectedError = axiosError.response && axiosError.response.status >= 400 && axiosError.response.status < 500;
+        if (!isExpectedError) toast.error('An unexpected error occurred.');
 
         // Always reject the promise for further error handling in the caller
         return Promise.reject(error);
@@ -52,11 +48,7 @@ function get<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse
  * @param config - Optional AxiosRequestConfig object for additional configurations.
  * @returns A promise resolving to AxiosResponse with inferred response data type.
  */
-function post<T>(
-    url: string,
-    data?: unknown,
-    config?: AxiosRequestConfig
-): Promise<AxiosResponse<T>> {
+function post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return axios.post<T>(url, data, config);
 }
 
@@ -67,11 +59,7 @@ function post<T>(
  * @param config - Optional AxiosRequestConfig object for additional configurations.
  * @returns A promise resolving to AxiosResponse with inferred response data type.
  */
-function put<T>(
-    url: string,
-    data?: unknown,
-    config?: AxiosRequestConfig
-): Promise<AxiosResponse<T>> {
+function put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return axios.put<T>(url, data, config);
 }
 
@@ -82,11 +70,7 @@ function put<T>(
  * @param config - Optional AxiosRequestConfig object for additional configurations.
  * @returns A promise resolving to AxiosResponse with inferred response data type.
  */
-function patch<T>(
-    url: string,
-    data?: unknown,
-    config?: AxiosRequestConfig
-): Promise<AxiosResponse<T>> {
+function patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return axios.patch<T>(url, data, config);
 }
 
