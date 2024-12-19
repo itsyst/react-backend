@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Category from './components/Category';
 import ProductList from './components/ProductList';
+import UserList from './components/UserList';
 import 'bootstrap/dist/css/bootstrap.css';
 import './App.css';
 
@@ -16,6 +17,7 @@ function App() {
 		<>
 			<Category onSelect={onSelect} categoryId={categoryId} />
 			<ProductList categoryId={categoryId} />
+			<UserList />
 		</>
 	);
 }
