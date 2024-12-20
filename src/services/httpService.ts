@@ -6,18 +6,28 @@ axios.defaults.baseURL = import.meta.env.VITE_REACT_APP_API_URL;
 
 // Axios response interceptor to handle errors globally
 axios.interceptors.response.use(
-    (response) => response,
+    (response) => response,  
     (error) => {
         if (axios.isCancel(error)) return Promise.reject(error);
 
         const axiosError = error as AxiosError;
-        const isExpectedError = axiosError.response && axiosError.response.status >= 400 && axiosError.response.status < 500;
-        if (!isExpectedError) toast.error('An unexpected error occurred.');
 
-        // Always reject the promise for further error handling in the caller
-        return Promise.reject(error);
+        const isExpectedError =
+            axiosError.response &&
+            axiosError.response.status >= 400 &&
+            axiosError.response.status < 500;
+
+        if (!isExpectedError) {
+            // Log unexpected errors globally
+            console.error('Unexpected error:', axiosError);
+            toast.error('An unexpected error occurred.');
+        }
+
+        // Let specific error-handling logic in the caller handle the error
+        return Promise.reject(axiosError);
     }
 );
+
 
 /**
  * Sets the JWT token in Axios headers for authentication.

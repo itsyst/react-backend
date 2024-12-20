@@ -11,3 +11,13 @@ const apiEndpoint = '/users';
 export const getUsers = async (signal: AbortSignal) => {
     return await http.get<UserType[]>(apiEndpoint, { signal });
 }
+
+
+/**
+ * Deletes a user by ID from the API.
+ * @param id - The ID of the user to delete
+ * @returns Promise containing the deleted user response or any relevant message
+ */
+export const deleteUser = async (id: number) => {
+    return await http.delete<UserType>(`${apiEndpoint}/${id}`);
+};
