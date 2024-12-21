@@ -36,6 +36,7 @@ const UserList = () => {
 	}, []);
 
 	const handleCreateUser = (newUser: Partial<UserType>, reset: () => void) => {
+		const initialUsers = [...users];
 		const completeUser: UserType = {
 			...mapToUserModel(),
 			...newUser
@@ -50,6 +51,7 @@ const UserList = () => {
 				reset();
 			})
 			.catch((err) => {
+				setUsers(initialUsers);
 				toast.error(`Failed to create user: ${err.message}`);
 			});
 	};
