@@ -22,6 +22,16 @@ export const createUser = async (user: UserType) => {
 }
 
 /**
+ * Patches a user via the API
+ * @param id - The ID of the user to patch
+ * @param user - The user object to patch
+ * @returns Promise containing the patched user
+ */
+export const patchUser = async (user: UserType) => {
+    return await http.patch<UserType>(`${apiEndpoint}/${user.id}`, user)
+}
+
+/**
  * Deletes a user by ID from the API.
  * @param id - The ID of the user to delete
  * @returns Promise containing the deleted user response or any relevant message

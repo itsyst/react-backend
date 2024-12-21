@@ -1,14 +1,19 @@
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
+import { useEffect } from 'react';
 import { Form } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { UserType } from '../types/UserType';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 
 interface Props {
-	show: boolean;
+	show: boolean | undefined;
+	action: string | undefined;
+	toUpdate: UserType | undefined;
 	onClose: () => void;
 	onSave: (newUser: FormData, reset: () => void) => void;
+	onUpdate: (updateUser: FormData) => void;
 }
 
 const schema = z.object({
@@ -20,7 +25,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const StaticModal = ({ show, onClose, onSave }: Props) => {
+const StaticModal = ({ show, action, toUpdate, onClose, onSave, onUpdate }: Props) => {
 	const {
 		register,
 		handleSubmit,
@@ -31,14 +36,29 @@ const StaticModal = ({ show, onClose, onSave }: Props) => {
 		defaultValues: { name: '', email: '', phone: '', website: '' }
 	});
 
+	useEffect(() => {
+		if (action === 'update' && toUpdate) {
+			reset({
+				name: toUpdate.name,
+				email: toUpdate.email,
+				phone: toUpdate.phone,
+				website: toUpdate.website ? `https://${toUpdate.website}` : ''
+			});
+		}
+	}, [action, toUpdate, reset]);
+
 	const onSubmit = (data: FormData) => {
-		onSave(data, reset);
+		if (action === 'add') {
+			onSave(data, reset);
+		} else if (action === 'update') {
+			onUpdate(data);
+		}
 	};
 
 	return (
-		<Modal show={show} onHide={onClose}>
+		<Modal show={show} onHide={onClose} action={action}>
 			<Modal.Header closeButton>
-				<Modal.Title>Create User</Modal.Title>
+				<Modal.Title>{action === 'add' ? 'Create User' : 'Update User'}</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<Form onSubmit={handleSubmit(onSubmit)}>

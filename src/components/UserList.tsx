@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { createUser, deleteUser, getUsers } from '../services/userService';
+import { createUser, patchUser, deleteUser, getUsers } from '../services/userService';
 import { UserType } from '../types/UserType';
 import { ToastContainer, toast } from 'react-toastify';
 import { CanceledError } from 'axios';
 import { MdDelete } from 'react-icons/md';
 import { IoMdAddCircleOutline } from 'react-icons/io';
+import { FaEdit } from 'react-icons/fa';
 import { mapToUserModel } from '../utils/mappers/userMapper';
 import StaticModal from './StaticModal';
 
@@ -12,7 +13,9 @@ const UserList = () => {
 	const [users, setUsers] = useState<UserType[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setLoading] = useState<boolean>(false);
-	const [showModal, setShowModal] = useState<boolean>(false);
+	const [showModal, setShowModal] = useState<boolean>();
+	const [action, setAction] = useState<string>();
+	const [user, setUser] = useState<UserType>();
 
 	useEffect(() => {
 		const controller = new AbortController();
@@ -35,7 +38,7 @@ const UserList = () => {
 		return () => controller.abort();
 	}, []);
 
-	const handleCreateUser = (newUser: Partial<UserType>, reset: () => void) => {
+	const addUser = (newUser: Partial<UserType>, reset: () => void) => {
 		const initialUsers = [...users];
 		const completeUser: UserType = {
 			...mapToUserModel(),
@@ -51,12 +54,36 @@ const UserList = () => {
 				reset();
 			})
 			.catch((err) => {
-				setUsers(initialUsers);
 				toast.error(`Failed to create user: ${err.message}`);
+				setUsers(initialUsers);
 			});
 	};
 
-	const handleDeleteUser = (id: number) => {
+	const editUser = (editUser: Partial<UserType>) => {
+		const initialUsers = [...users];
+		if (user) {
+			const completeUser: UserType = {
+				...user,
+				...editUser
+			};
+
+			patchUser(completeUser)
+				.then(() => {
+					setUsers((prevUsers) => prevUsers.map((user) => (user.id === completeUser.id ? completeUser : user)));
+					toast.success('User updated successfully', {
+						autoClose: 1000
+					});
+					setShowModal(false);
+				})
+				.catch((err) => {
+					setError(`Failed to update user: ${err.message}`);
+					toast.error(`Failed to update user: ${err.message}`);
+					setUsers(initialUsers);
+				});
+		}
+	};
+
+	const removeUser = (id: number) => {
 		const initialUsers = [...users];
 		setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
 
@@ -67,10 +94,16 @@ const UserList = () => {
 				});
 			})
 			.catch((err) => {
-				setUsers(initialUsers);
 				if (err instanceof CanceledError) return;
 				toast.error(`Error deleting user: ${err.message}`);
+				setUsers(initialUsers);
 			});
+	};
+
+	const handleShowModal = (user?: UserType, state?: boolean, action?: 'add' | 'update') => {
+		setUser(user);
+		setShowModal(state);
+		setAction(action);
 	};
 
 	return (
@@ -78,23 +111,26 @@ const UserList = () => {
 			<div className="user-list mt-3">
 				<div className="d-flex justify-content-between w-100">
 					<h3>User List</h3>
-					<IoMdAddCircleOutline color="blue" cursor="pointer" onClick={() => setShowModal(true)} />
+					<IoMdAddCircleOutline color="#0d6efd" cursor="pointer" onClick={() => handleShowModal(undefined, true, 'add')} />
 				</div>
 				{error && <p className="text-danger">{error}</p>}
 				{isLoading && <div className="spinner-border"></div>}
 				{!isLoading && !error && (
 					<ul className="px-0">
-						{users.map((user) => (
-							<li className="list-unstyled d-flex justify-content-between" key={user.id}>
+						{users.map((user, index) => (
+							<li className="list-unstyled d-flex justify-content-between" key={index}>
 								{user.name}
-								<MdDelete color="red" cursor="pointer" onClick={() => handleDeleteUser(user.id)} />
+								<div>
+									<FaEdit color="#0dcaf0" cursor="pointer" onClick={() => handleShowModal(user, true, 'update')} />{' '}
+									<MdDelete color="#dc3545" cursor="pointer" onClick={() => removeUser(user.id)} />
+								</div>
 							</li>
 						))}
 					</ul>
 				)}
 				<ToastContainer />
 			</div>
-			<StaticModal show={showModal} onClose={() => setShowModal(false)} onSave={handleCreateUser} />
+			<StaticModal toUpdate={user} show={showModal} action={action} onClose={() => setShowModal(false)} onSave={addUser} onUpdate={editUser} />
 		</>
 	);
 };
