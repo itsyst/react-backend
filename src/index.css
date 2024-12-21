@@ -78,34 +78,15 @@ button:focus-visible {
 }
 
 /* === Dropdown Styles === */
-.input-group {
-	display: flex;
-	align-items: center;
-	width: 28rem; /* Same width as .user-list */
+
+.form-select:focus,
+.form-select:active {
+	border-color: #dee2e6 !important; /* Remove border */
+	box-shadow: none !important; /* Remove shadow */
 }
 
-.input-group-prepend {
-	flex: 0 0 auto;
-	width: 8rem; /* Fixed label width */
-}
-
-.input-group-text {
-	display: inline-block;
-	width: 100%;
-	text-align: center;
-	padding: 0.6em 0;
-	border-radius: 8px 0 0 8px;
-}
-
-.custom-select {
-	flex: 1;
-	width: calc(100% - 8rem); /* Subtract label width (8rem) */
-	border-left: none;
-	border-radius: 0 8px 8px 0;
-}
-.custom-select {
-	border-color: rgba(0, 0, 0, 0.175);
-	outline: none;
+.text-start {
+	text-align: left;
 }
 
 /* === Utility Classes === */
