@@ -25,7 +25,7 @@ export const createUser = async (user: UserType) => {
  * Patches a user via the API
  * @param id - The ID of the user to patch
  * @param user - The user object to patch
- * @returns Promise containing the patched user
+ * @returns Promise containing the patch user
  */
 export const patchUser = async (user: UserType) => {
     return await http.patch<UserType>(`${apiEndpoint}/${user.id}`, user)

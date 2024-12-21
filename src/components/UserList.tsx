@@ -15,7 +15,7 @@ const UserList = () => {
 	const [isLoading, setLoading] = useState<boolean>(false);
 	const [showModal, setShowModal] = useState<boolean>();
 	const [action, setAction] = useState<string>();
-	const [user, setUser] = useState<UserType>();
+	const [user, setUser] = useState<UserType | undefined>();
 
 	useEffect(() => {
 		const controller = new AbortController();
@@ -38,7 +38,7 @@ const UserList = () => {
 		return () => controller.abort();
 	}, []);
 
-	const addUser = (newUser: Partial<UserType>, reset: () => void) => {
+	const addUser = (newUser: Partial<UserType>) => {
 		const initialUsers = [...users];
 		const completeUser: UserType = {
 			...mapToUserModel(),
@@ -51,7 +51,6 @@ const UserList = () => {
 					autoClose: 1000 // Set duration to 2000ms
 				});
 				setShowModal(false);
-				reset();
 			})
 			.catch((err) => {
 				toast.error(`Failed to create user: ${err.message}`);
@@ -100,7 +99,7 @@ const UserList = () => {
 			});
 	};
 
-	const handleShowModal = (user?: UserType, state?: boolean, action?: 'add' | 'update') => {
+	const handleShowModal = (user: UserType | undefined, state: boolean, action: 'add' | 'update') => {
 		setUser(user);
 		setShowModal(state);
 		setAction(action);

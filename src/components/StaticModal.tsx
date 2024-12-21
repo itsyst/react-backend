@@ -12,7 +12,7 @@ interface Props {
 	action: string | undefined;
 	toUpdate: UserType | undefined;
 	onClose: () => void;
-	onSave: (newUser: FormData, reset: () => void) => void;
+	onSave: (newUser: FormData) => void;
 	onUpdate: (updateUser: FormData) => void;
 }
 
@@ -37,21 +37,21 @@ const StaticModal = ({ show, action, toUpdate, onClose, onSave, onUpdate }: Prop
 	});
 
 	useEffect(() => {
-		if (action === 'update' && toUpdate) {
-			reset({
-				name: toUpdate.name,
-				email: toUpdate.email,
-				phone: toUpdate.phone,
-				website: toUpdate.website ? `https://${toUpdate.website}` : ''
-			});
-		}
+		const defaultValues = {
+			name: toUpdate?.name || '',
+			email: toUpdate?.email || '',
+			phone: toUpdate?.phone || '',
+			website: toUpdate?.website ? `https://${toUpdate.website}` : ''
+		};
+
+		reset(defaultValues);
 	}, [action, toUpdate, reset]);
 
 	const onSubmit = (data: FormData) => {
 		if (action === 'add') {
 			onSave(data, reset);
 		} else if (action === 'update') {
-			onUpdate(data);
+			onUpdate(data, reset);
 		}
 	};
 
