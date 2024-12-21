@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { createUser, patchUser, deleteUser, getUsers } from '../services/userService';
+import { useState } from 'react';
+import { createUser, patchUser, deleteUser } from '../services/userService';
 import { UserType } from '../types/UserType';
 import { ToastContainer, toast } from 'react-toastify';
 import { CanceledError } from 'axios';
@@ -8,35 +8,13 @@ import { IoMdAddCircleOutline } from 'react-icons/io';
 import { FaEdit } from 'react-icons/fa';
 import { mapToUserModel } from '../utils/mappers/userMapper';
 import StaticModal from './StaticModal';
+import useUsers from '../hooks/useUsers';
 
 const UserList = () => {
-	const [users, setUsers] = useState<UserType[]>([]);
-	const [error, setError] = useState<string | null>(null);
-	const [isLoading, setLoading] = useState<boolean>(false);
 	const [showModal, setShowModal] = useState<boolean>();
 	const [action, setAction] = useState<string>();
 	const [user, setUser] = useState<UserType | undefined>();
-
-	useEffect(() => {
-		const controller = new AbortController();
-
-		setLoading(true);
-		getUsers(controller.signal)
-			.then(({ data }) => {
-				setUsers(data);
-				setError(null);
-			})
-			.catch((err) => {
-				if (err instanceof CanceledError) return;
-
-				setError('Failed to fetch users');
-				setUsers([]);
-				toast.error(`Error fetching users: ${err.message}`);
-			})
-			.finally(() => setLoading(false));
-
-		return () => controller.abort();
-	}, []);
+	const { users, error, isLoading, setUsers, setError } = useUsers(); // Custom hook
 
 	const addUser = (newUser: Partial<UserType>) => {
 		const initialUsers = [...users];
