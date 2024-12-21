@@ -49,9 +49,9 @@ const StaticModal = ({ show, action, toUpdate, onClose, onSave, onUpdate }: Prop
 
 	const onSubmit = (data: FormData) => {
 		if (action === 'add') {
-			onSave(data, reset);
+			onSave(data);
 		} else if (action === 'update') {
-			onUpdate(data, reset);
+			onUpdate(data);
 		}
 	};
 
