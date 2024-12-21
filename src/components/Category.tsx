@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CategoryType } from '../types/CategoryType';
 import { categories } from '../data/category-data';
+import { Form, InputGroup } from 'react-bootstrap';
 
 interface Props {
 	categoryId: number;
@@ -15,19 +16,17 @@ const Category = ({ categoryId, onSelect }: Props) => {
 	}, [categoryId]);
 
 	return (
-		<div className="input-group mb-3">
-			<div className="input-group-prepend">
-				<label className="input-group-text">Options</label>
-			</div>
-			<select className="custom-select" onChange={onSelect}>
+		<InputGroup className="mb-3">
+			<InputGroup.Text>Options</InputGroup.Text>
+			<Form.Select onChange={onSelect}>
 				<option value="0"> All Categories...</option>
 				{getCategories.map((category) => (
 					<option key={category.id} value={category.id}>
 						{category.name}
 					</option>
 				))}
-			</select>
-		</div>
+			</Form.Select>
+		</InputGroup>
 	);
 };
 
