@@ -12,6 +12,14 @@ export const getUsers = async (signal: AbortSignal) => {
     return await http.get<UserType[]>(apiEndpoint, { signal });
 }
 
+/**
+ * Creates a new user via the API.
+ * @param user - The user object to create
+ * @returns Promise containing the created user
+ */
+export const createUser = async (user: UserType) => {
+    return await http.post<UserType>(apiEndpoint, user)
+}
 
 /**
  * Deletes a user by ID from the API.

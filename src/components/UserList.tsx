@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
-import { deleteUser, getUsers } from '../services/userService';
+import { createUser, deleteUser, getUsers } from '../services/userService';
 import { UserType } from '../types/UserType';
 import { ToastContainer, toast } from 'react-toastify';
 import { CanceledError } from 'axios';
 import { MdDelete } from 'react-icons/md';
+import { IoMdAddCircleOutline } from 'react-icons/io';
+import { mapToUserModel } from '../utils/mappers/userMapper';
+import StaticModal from './StaticModal';
 
 const UserList = () => {
 	const [users, setUsers] = useState<UserType[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setLoading] = useState<boolean>(false);
+	const [showModal, setShowModal] = useState<boolean>(false);
 
 	useEffect(() => {
 		const controller = new AbortController();
@@ -28,52 +32,68 @@ const UserList = () => {
 			})
 			.finally(() => setLoading(false));
 
-		// Cleanup: Abort ongoing requests when component unmounts
 		return () => controller.abort();
 	}, []);
 
-	const handleDeleteUser = (id: number) => {
-		// Save the initial state for rollback in case of an error
-		const initialUsers = [...users];
+	const handleCreateUser = (newUser: Partial<UserType>, reset: () => void) => {
+		const completeUser: UserType = {
+			...mapToUserModel(),
+			...newUser
+		};
+		createUser(completeUser)
+			.then(({ data }) => {
+				setUsers([data, ...users]);
+				toast.success('User created successfully', {
+					autoClose: 1000 // Set duration to 2000ms
+				});
+				setShowModal(false);
+				reset();
+			})
+			.catch((err) => {
+				toast.error(`Failed to create user: ${err.message}`);
+			});
+	};
 
-		// Optimistically remove the user from the UI
+	const handleDeleteUser = (id: number) => {
+		const initialUsers = [...users];
 		setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
 
 		deleteUser(id)
 			.then(() => {
-				toast.success('User deleted successfully');
+				toast.success('User deleted successfully', {
+					autoClose: 1000
+				});
 			})
 			.catch((err) => {
-				// Always rollback to the initial state on error
 				setUsers(initialUsers);
-
 				if (err instanceof CanceledError) return;
-
-				if (err.response && err.response.status === 404) toast.error('User not found!');
-				else toast.error(`Error deleting user: ${err.message}`);
+				toast.error(`Error deleting user: ${err.message}`);
 			});
 	};
 
 	return (
-		<div className="user-list mt-3">
-			<h3>User List</h3>
-			{error && <p className="text-danger">{error}</p>}
-
-			{isLoading && <div className="spinner-border"></div>}
-
-			{!isLoading && !error && (
-				<ul className="px-0">
-					{users.map((user: UserType) => (
-						<li className="list-unstyled d-flex justify-content-between" key={user.id}>
-							{user.name}
-							<MdDelete key={user.id} color="red" cursor={'pointer'} onClick={() => handleDeleteUser(user.id)} />
-						</li>
-					))}
-				</ul>
-			)}
-
-			<ToastContainer />
-		</div>
+		<>
+			<div className="user-list mt-3">
+				<div className="d-flex justify-content-between w-100">
+					<h3>User List</h3>
+					<IoMdAddCircleOutline color="blue" cursor="pointer" onClick={() => setShowModal(true)} />
+				</div>
+				{error && <p className="text-danger">{error}</p>}
+				{isLoading && <div className="spinner-border"></div>}
+				{!isLoading && !error && (
+					<ul className="px-0">
+						{users.map((user) => (
+							<li className="list-unstyled d-flex justify-content-between" key={user.id}>
+								{user.name}
+								<MdDelete color="red" cursor="pointer" onClick={() => handleDeleteUser(user.id)} />
+							</li>
+						))}
+					</ul>
+				)}
+				<ToastContainer />
+			</div>
+			<StaticModal show={showModal} onClose={() => setShowModal(false)} onSave={handleCreateUser} />
+		</>
 	);
 };
 
